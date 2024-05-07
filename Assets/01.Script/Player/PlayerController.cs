@@ -35,25 +35,26 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Speed();
-        Move(speed);
+        Sprint();
+        Move();
         ApplyGravity();
     }
 
-    private void Speed()
+    // 달리기
+    private void Sprint()
     {
         if(Input.GetKey(KeyCode.LeftShift))
         {
-            speed = runingSpeed;
+            isRuning = true;
         }
-        else if(Input.GetKeyUp(KeyCode.LeftShift))
+        else
         {
-            speed = baseSpeed;
+            isRuning = false;
         }
     }
 
     // 플레이어의 움직임 조작
-    private void Move(float Speed)
+    private void Move()
     {
         Camera.main.transform.forward = transform.forward;
 
@@ -62,11 +63,21 @@ public class PlayerController : MonoBehaviour
 
         var moveDir = Camera.main.transform.forward * v + Camera.main.transform.right * h;
 
-        Vector3 move = moveDir * Speed * Time.deltaTime;
+        if(isRuning)
+        {
+            speed = runingSpeed;
+        }
+        else
+        {
+            speed = baseSpeed;
+        }
+
+        Vector3 move = moveDir * speed * Time.deltaTime;
 
         characterController.Move(move);
     }
 
+    // 중력 적용
     private void ApplyGravity()
     {
         if (!characterController.isGrounded) // 캐릭터가 땅에 닿지 않은 경우
