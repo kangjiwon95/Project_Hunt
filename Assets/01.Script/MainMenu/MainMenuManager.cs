@@ -60,13 +60,22 @@ public class MainMenuManager : MonoBehaviour
     // Button.OnClick.AddListener(() => );
 
     #region New Game Button
+    IEnumerator LoadYourAsyncScene()
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("GameScene");
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+    }
     private void NewGameButton()
     {
         //ToDo: 추가 작업
         // 데이터 저장 불러오기 제작
         // 슬롯에 데이터 저장
         // 비동기로 씬 로딩 구현
-        newGameButton.onClick.AddListener(() => SceneManager.LoadScene("GameScene"));
+        newGameButton.onClick.AddListener(() => StartCoroutine(LoadYourAsyncScene()));
     }
 
     #endregion
