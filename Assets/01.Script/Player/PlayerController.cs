@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
 
     CharacterController characterController;
     Animator animator;
+    PlayerRifle playerRifle;
 
     [Space(20)]
     [Header("Speed")]
@@ -15,22 +15,53 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float baseSpeed = 5f;
     [SerializeField]
-    float fatigueSpeed = 2f;
-    [SerializeField]
     float runingSpeed = 10f;
+
+    [Space(20)]
+    [Header("Zoom , MouseMove")]
+    public Camera mainCam;
+    public Camera sightMoveCam;
+    [SerializeField]
+    private float yRotation = 0f; // 머리의 Y 축 회전값
+    [SerializeField]
+    private float mouseSensitivity = 100; // 머리 회전의 속도
 
     [Header("Bool")]
     private bool isRuning = false;
 
+    [Header("Compas")]
+    public Image arrow;
+
+    [Header("UI")]
+    public Sprite[] fatigueImage;
+    public Image fatigue;
+    public Image fatigueGauge;
+    public Image soundGauge;
+
+    [Header("UI Interaction")]
+    float currentFatigue;
+    float maxFatigue;
+    float currentSound;
+    float maxSound;
+
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+        playerRifle = GetComponent<PlayerRifle>();
     }
 
     private void Start()
     {
         // 마우스 커서를 화면 안에 고정
         Cursor.lockState = CursorLockMode.Locked;
+
+        // UI 상호작용 초기 값 설정
+        maxFatigue = 1000f;
+        currentFatigue = maxFatigue;
+
+        currentSound = 0f;
+        maxSound = 10f;
     }
 
     private void Update()
@@ -38,12 +69,33 @@ public class PlayerController : MonoBehaviour
         Sprint();
         Move();
         ApplyGravity();
+        MouseMove();
+
+        if(playerRifle.isSight)
+        {
+            sightMoveCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        }
+        else
+        {
+            mainCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        }
+
+        if (isRuning)
+        {
+            Sound(6);
+            Fatigue(6);
+        }
+        else
+        {
+            Sound(2);
+            Fatigue(1);
+        }
     }
 
-    // 달리기
+    #region 달리기
     private void Sprint()
     {
-        if(Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && currentFatigue > 0)
         {
             isRuning = true;
         }
@@ -51,9 +103,11 @@ public class PlayerController : MonoBehaviour
         {
             isRuning = false;
         }
+        animator.SetBool("isSprint", isRuning);
     }
+    #endregion
 
-    // 플레이어의 움직임 조작
+    #region 플레이어의 움직임 조작
     private void Move()
     {
         Camera.main.transform.forward = transform.forward;
@@ -63,7 +117,7 @@ public class PlayerController : MonoBehaviour
 
         var moveDir = Camera.main.transform.forward * v + Camera.main.transform.right * h;
 
-        if(isRuning)
+        if (isRuning)
         {
             speed = runingSpeed;
         }
@@ -76,8 +130,9 @@ public class PlayerController : MonoBehaviour
 
         characterController.Move(move);
     }
+    #endregion
 
-    // 중력 적용
+    #region 중력 적용
     private void ApplyGravity()
     {
         if (!characterController.isGrounded) // 캐릭터가 땅에 닿지 않은 경우
@@ -87,4 +142,44 @@ public class PlayerController : MonoBehaviour
             characterController.Move(gravity);
         }
     }
+    #endregion
+
+    #region 마우스 움직임
+    private void MouseMove()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+
+        // 카메라의 상하 회전
+        yRotation -= mouseY;
+        yRotation = Mathf.Clamp(yRotation, -5f, 3f); // 상하 회전 각도 제한 (-40 , 20)
+        // 플레이어의 좌우 회전
+        transform.rotation *= Quaternion.Euler(0f, mouseX, 0f);
+        arrow.transform.rotation *= Quaternion.Euler(0f, 0f, -mouseX);
+    }
+    #endregion
+
+    #region UI 상호작용
+    public void Fatigue(float X)
+    {
+        currentFatigue -= X * Time.deltaTime;
+        fatigueGauge.fillAmount = currentFatigue / maxFatigue;
+        if (currentFatigue <= 0f)
+        {
+            currentFatigue = 0f;
+        }
+    }
+
+    public void Sound(float X)
+    {
+        currentSound = X;
+        soundGauge.fillAmount = currentSound / maxSound;
+        if (currentSound >= 10f)
+        {
+            currentSound = 10f;
+        }
+    }
+
+    #endregion
 }
