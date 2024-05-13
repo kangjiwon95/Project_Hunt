@@ -66,7 +66,7 @@ public class MainMenuManager : MonoBehaviour
         // 데이터 저장 불러오기 제작
         // 슬롯에 데이터 저장
         // 비동기로 씬 로딩 구현
-        newGameButton.onClick.AddListener(() => SceneManager.LoadScene("GameScene"));
+        newGameButton.onClick.AddListener(() => SceneManager.LoadScene(1));
     }
 
     #endregion

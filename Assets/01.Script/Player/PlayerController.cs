@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 
     CharacterController characterController;
     Animator animator;
-    PlayerRifle playerRifle;
+    PlayerSound playerSound;
 
     [Space(20)]
     [Header("Speed")]
@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     float runingSpeed = 10f;
 
     [Space(20)]
-    [Header("Zoom , MouseMove")]
+    [Header("MouseMove")]
     public Camera mainCam;
     public Camera sightMoveCam;
     [SerializeField]
@@ -36,19 +36,16 @@ public class PlayerController : MonoBehaviour
     public Sprite[] fatigueImage;
     public Image fatigue;
     public Image fatigueGauge;
-    public Image soundGauge;
 
     [Header("UI Interaction")]
     float currentFatigue;
     float maxFatigue;
-    float currentSound;
-    float maxSound;
 
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
-        playerRifle = GetComponent<PlayerRifle>();
+        playerSound = GetComponent<PlayerSound>();
     }
 
     private void Start()
@@ -59,9 +56,6 @@ public class PlayerController : MonoBehaviour
         // UI 상호작용 초기 값 설정
         maxFatigue = 1000f;
         currentFatigue = maxFatigue;
-
-        currentSound = 0f;
-        maxSound = 10f;
     }
 
     private void Update()
@@ -69,27 +63,6 @@ public class PlayerController : MonoBehaviour
         Sprint();
         Move();
         ApplyGravity();
-        MouseMove();
-
-        if(playerRifle.isSight)
-        {
-            sightMoveCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
-        }
-        else
-        {
-            mainCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
-        }
-
-        if (isRuning)
-        {
-            Sound(6);
-            Fatigue(6);
-        }
-        else
-        {
-            Sound(2);
-            Fatigue(1);
-        }
     }
 
     #region 달리기
@@ -98,10 +71,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && currentFatigue > 0)
         {
             isRuning = true;
+            playerSound.Sound(6);
         }
         else
         {
             isRuning = false;
+            playerSound.Sound(2);
         }
         animator.SetBool("isSprint", isRuning);
     }
@@ -126,7 +101,7 @@ public class PlayerController : MonoBehaviour
             speed = baseSpeed;
         }
 
-        Vector3 move = moveDir * speed * Time.deltaTime;
+        Vector3 move = moveDir.normalized * speed * Time.deltaTime;
 
         characterController.Move(move);
     }
@@ -145,7 +120,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region 마우스 움직임
-    private void MouseMove()
+    public void MouseMove()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
@@ -154,6 +129,22 @@ public class PlayerController : MonoBehaviour
         // 카메라의 상하 회전
         yRotation -= mouseY;
         yRotation = Mathf.Clamp(yRotation, -5f, 3f); // 상하 회전 각도 제한 (-40 , 20)
+        mainCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        // 플레이어의 좌우 회전
+        transform.rotation *= Quaternion.Euler(0f, mouseX, 0f);
+        arrow.transform.rotation *= Quaternion.Euler(0f, 0f, -mouseX);
+    }
+
+    public void SightMouseMove()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        // 카메라의 상하 회전
+        yRotation -= mouseY;
+        yRotation = Mathf.Clamp(yRotation, -5f, 3f); // 상하 회전 각도 제한 (-40 , 20)
+        sightMoveCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
+        
         // 플레이어의 좌우 회전
         transform.rotation *= Quaternion.Euler(0f, mouseX, 0f);
         arrow.transform.rotation *= Quaternion.Euler(0f, 0f, -mouseX);
@@ -170,16 +161,5 @@ public class PlayerController : MonoBehaviour
             currentFatigue = 0f;
         }
     }
-
-    public void Sound(float X)
-    {
-        currentSound = X;
-        soundGauge.fillAmount = currentSound / maxSound;
-        if (currentSound >= 10f)
-        {
-            currentSound = 10f;
-        }
-    }
-
     #endregion
 }

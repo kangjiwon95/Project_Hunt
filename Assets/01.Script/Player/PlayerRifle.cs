@@ -8,8 +8,10 @@ using UnityEngine.UI;
 public class PlayerRifle : MonoBehaviour
 {
     [Space(20)]
-    [Header("Animator")]
+    [Header("Component")]
     Animator animator;
+    PlayerSound playerSound;
+    PlayerController playerController;
 
     [Header("RifleObject")]
     // 아이템 사용을 위해 총기를 들고있을 때 총기 숨김
@@ -20,7 +22,7 @@ public class PlayerRifle : MonoBehaviour
     private bool isWeapons = false; // 무기 들고있는상태
 
     [Space(20)]
-    [Header("Sight")]
+    [Header("SightOn")]
     public Camera sightMoveCam;
     public Camera mainCam;
     public Transform sightCamPos;
@@ -31,18 +33,15 @@ public class PlayerRifle : MonoBehaviour
 
     [Header("Rifle State")]
     public bool isSight = false; // 현재 사이트 상태 체크
-    private bool isHold = false;  // 현재 숨참기 상태 체크
-    private bool isTogglingSight = false; // 시야 전환 중 여부를 나타내는 변수
 
     [Space(20)]
     [Header("Zoom")]
     public Image Breath;
     [SerializeField]
     private float currentBreath = 0f;
-    private float MaxBreath = 20;
+    private float MaxBreath = 10;
     [SerializeField]
     private float zoomSpeed = 20;
-    private float yRotation = 0f; // 머리의 Y 축 회전값
 
     [Space(20)]
     [Header("Bullet")]
@@ -54,19 +53,28 @@ public class PlayerRifle : MonoBehaviour
     private float magazine;
     private bool isFire = false;
 
+    [Space(20)]
+    [Header("ShootGameObjet")]
+    public GameObject sleeve;
+    public Transform sleevePos;
+    public GameObject bullet;
+    public Transform bulletPos;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        playerSound = GetComponent<PlayerSound>();
+        playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
     {
         rifleObj.SetActive(false);
 
-        MaxBreath = 5f;
+        MaxBreath = 10f;
         currentBreath = MaxBreath;
 
-        maxBullet = 12f;
+        maxBullet = 6f;
         currentBullet = maxBullet;
         magazine = 99f;
         bulletText.text = currentBullet.ToString();
@@ -85,17 +93,24 @@ public class PlayerRifle : MonoBehaviour
             Reload();
             Observe();
             IdleChanged();
-            Sight();
+            SightOn();
         }
         #endregion
 
-        if(isSight)
+        #region 줌 상태
+        if (isSight)
         {
             Zoom();
-            Hold();
             Shoot();
+            playerController.SightMouseMove();
+            BreathHold();
         }
-
+        else
+        {
+            playerController.MouseMove();
+            BreathRecovery();
+        }
+        #endregion
         ColorBreathHold();
     }
 
@@ -153,10 +168,16 @@ public class PlayerRifle : MonoBehaviour
         {
             animator.SetTrigger("isShoot");
             StartCoroutine(WaitForNextShot());
-            //LeanPool.Spawn(sleeve, sleevePos);
+            LeanPool.Spawn(sleeve, sleevePos);
+            // 총알 생성 위치와 회전 조정
+            Vector3 bulletSpawnPosition = sightMoveCam.transform.position + sightMoveCam.transform.forward * 0.5f; // 카메라 앞으로 0.5 미터
+            Quaternion bulletSpawnRotation = Quaternion.LookRotation(sightMoveCam.transform.forward);
+
+            // 총알 생성
+            Instantiate(bullet, bulletSpawnPosition, bulletSpawnRotation);
             currentBullet--;
             CheckBullet();
-
+            playerSound.Sound(10);
         }
         else if (currentBullet <= 0)
         {
@@ -181,34 +202,32 @@ public class PlayerRifle : MonoBehaviour
     #endregion
 
     #region Sight 상태
-    private void Sight()
+    private void SightOn()
     {
-        if (!isTogglingSight && Input.GetKeyDown(KeyCode.Mouse1)) // 시야 전환 중이 아니고 마우스 우클릭이 눌렸을 때
+        if (Input.GetKey(KeyCode.Mouse1) && currentBreath > 5) // 시야 전환 중이 아니고 마우스 우클릭이 눌렸을 때
         {
-            isTogglingSight = true; // 시야 전환 중임을 나타내는 변수를 true로 설정
-            isSight = !isSight; // 시야 상태를 토글
+            isSight = true;
+            leanSight.SetActive(false);
+            scope.SetActive(true);
+            cross.SetActive(true);
+            animator.SetBool("isSight", true);
+            mainCam.transform.position = sightCamPos.position;
+        }
+        // 시야 전환 중이고 마우스 우클릭이 해제되었을 때
+        else if(Input.GetKeyUp(KeyCode.Mouse1))
+        {
+            SightOff();
+        }
+    }
 
-            if (isSight) // 시야가 열린 경우
-            {
-                leanSight.SetActive(false);
-                scope.SetActive(true);
-                cross.SetActive(true);
-                animator.SetBool("isSight", true);
-                mainCam.transform.position = sightCamPos.position;
-            }
-            else // 시야가 닫힌 경우
-            {
-                animator.SetBool("isSight", false);
-                leanSight.SetActive(true);
-                scope.SetActive(false);
-                cross.SetActive(false);
-                mainCam.transform.position = mainCamPos.position;
-            }
-        }
-        else if (isTogglingSight && Input.GetKeyUp(KeyCode.Mouse1)) // 시야 전환 중이고 마우스 우클릭이 해제되었을 때
-        {
-            isTogglingSight = false; // 시야 전환 완료
-        }
+    private void SightOff()
+    {
+        isSight = false;
+        animator.SetBool("isSight", false);
+        leanSight.SetActive(true);
+        scope.SetActive(false);
+        cross.SetActive(false);
+        mainCam.transform.position = mainCamPos.position;
     }
 
 
@@ -223,34 +242,6 @@ public class PlayerRifle : MonoBehaviour
 
         // 시야를 최소값과 최대값 설정
         sightMoveCam.fieldOfView = Mathf.Clamp(sightMoveCam.fieldOfView, 5f, 20f);
-
-        // 숨쉬는 듯한 효과를 위해 카메라를 약간 회전
-        if (!isHold)
-        {
-            // 숨쉬는 동안의 각도 변화를 시뮬레이션
-            float breathingAngleX = Mathf.Sin(Time.time * 4f) * 2.1f; // 좌우로의 움직임
-            float breathingAngleY = Mathf.Sin(Time.time * 4f) * 0.3f; // 상하로의 움직임
-
-            sightMoveCam.transform.localRotation = Quaternion.Euler(yRotation + breathingAngleY, breathingAngleX * 0.5f, 0f);
-        }
-        else
-        {
-            BreathHold();
-        }
-    }
-
-    // 숨 참기 발동
-    private void Hold()
-    {
-        if (Input.GetKey(KeyCode.LeftShift) && currentBreath > 0)
-        {
-            isHold = true;
-        }
-        else
-        {
-            isHold = false;
-            BreathRecovery();
-        }
     }
 
     // 숨 참기
@@ -261,6 +252,7 @@ public class PlayerRifle : MonoBehaviour
         if (currentBreath <= 0)
         {
             currentBreath = 0f;
+            SightOff();
         }
     }
 
@@ -280,12 +272,12 @@ public class PlayerRifle : MonoBehaviour
     // 숨을 참을 때 sight 상태에서 폐 이미지 색 변경
     private void ColorBreathHold() 
     {
-        if (currentBreath >= 5)
+        if (currentBreath >= 8)
         {
             Breath.color = Color.green;
         }
 
-        if (currentBreath <= 2.5)
+        if (currentBreath <= 5)
         {
             Breath.color = Color.yellow;
         }
@@ -317,4 +309,13 @@ public class PlayerRifle : MonoBehaviour
         targetObject.SetActive(false);
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        // 카메라의 위치에서 시작해서 카메라의 전방으로 레이를 그립니다.
+        // 이 레이는 에디터에서만 보이며 게임 실행 중에는 보이지 않습니다.
+        Gizmos.color = Color.red;  // 레이의 색상을 빨간색으로 설정
+        Vector3 direction = sightMoveCam.transform.forward * 100;  // 전방으로 5 유닛의 길이로 설정
+        Gizmos.DrawRay(sightMoveCam.transform.position, direction);
+    }
 }
