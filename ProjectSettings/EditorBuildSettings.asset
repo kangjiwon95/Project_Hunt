@@ -9,6 +9,10 @@ EditorBuildSettings:
     path: Assets/00.Scenes/MainMenu.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/00.Scenes/GameScene.unity
-    guid: 1ddfa22202c03344489ec65ea0c99c01
+    path: Assets/00.Scenes/LoadingScene.unity
+    guid: f8f37d92d7d56ea4888d09de2544bc00
+  - enabled: 1
+    path: Assets/99.Assets/Map/NatureManufacture Assets/Mountain Environment/Demo
+      Scenes/URP Mountain Scene.unity
+    guid: 26a9313146960294da97a1fd7fe6693b
   m_configObjects: {}

@@ -309,13 +309,4 @@ public class PlayerRifle : MonoBehaviour
         targetObject.SetActive(false);
     }
     #endregion
-
-    private void OnDrawGizmos()
-    {
-        // 카메라의 위치에서 시작해서 카메라의 전방으로 레이를 그립니다.
-        // 이 레이는 에디터에서만 보이며 게임 실행 중에는 보이지 않습니다.
-        Gizmos.color = Color.red;  // 레이의 색상을 빨간색으로 설정
-        Vector3 direction = sightMoveCam.transform.forward * 100;  // 전방으로 5 유닛의 길이로 설정
-        Gizmos.DrawRay(sightMoveCam.transform.position, direction);
-    }
 }

@@ -1,6 +1,7 @@
 using Lean.Pool;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -23,22 +24,25 @@ public class Bullet : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5F);
         foreach (Collider collider in colliders)
         {
-            //Animal animal = collider.GetComponentInParent<Animal>();
+            AnimalFSM animal = collider.GetComponentInParent<AnimalFSM>();
 
             if (collider.tag == "Head")
             {
-                print("머리");
                 Destroy(gameObject);
-                //animal.HeadDie();
+                animal.ChangeState(AnimalState.Die);
             }
             else if (collider.tag == "Heart")
             {
-                print("심장");
                 Destroy(gameObject);
+                animal.ChangeState(AnimalState.Die);
             }
-            else if(collider.tag == "Rock")
+            else if (collider.tag == "Animal")
+            { 
+                Destroy(gameObject);
+                animal.TakeDamage(50);
+            }
+            else if (collider.tag == "Rock")
             {
-                print("맞았다");
                 if (rockHitParticlePrefab != null)
                 {
                     Instantiate(rockHitParticlePrefab, transform.position, Quaternion.identity);

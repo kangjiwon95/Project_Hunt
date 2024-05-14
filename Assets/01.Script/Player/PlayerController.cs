@@ -52,6 +52,8 @@ public class PlayerController : MonoBehaviour
     {
         // 마우스 커서를 화면 안에 고정
         Cursor.lockState = CursorLockMode.Locked;
+        // 마우스 커서 숨김
+        Cursor.visible = false;
 
         // UI 상호작용 초기 값 설정
         maxFatigue = 1000f;
@@ -63,6 +65,7 @@ public class PlayerController : MonoBehaviour
         Sprint();
         Move();
         ApplyGravity();
+        Fatigue(2);
     }
 
     #region 달리기
@@ -72,6 +75,7 @@ public class PlayerController : MonoBehaviour
         {
             isRuning = true;
             playerSound.Sound(6);
+            Fatigue(5);
         }
         else
         {
@@ -160,6 +164,12 @@ public class PlayerController : MonoBehaviour
         {
             currentFatigue = 0f;
         }
+    }
+
+    public void FatigueRecovery()
+    {
+        currentFatigue = maxFatigue;
+        fatigueGauge.fillAmount = currentFatigue / maxFatigue;
     }
     #endregion
 }
