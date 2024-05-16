@@ -1,6 +1,4 @@
-using Lean.Pool;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -20,20 +18,15 @@ public class AnimalFSM : MonoBehaviour
     protected Animator animator;
     NavMeshAgent agent;
 
-    [SerializeField]
-    protected float currentHP;
-    protected float maxHP;
-
     [Header("Blood")]
     public GameObject blood;
-
-
-    [Header("Bool")]
-    private bool isSprint = false;
 
     [Header("TargetPos")]
     public Transform[] patrolTarget;
     public Transform escapeTarget;
+
+    [Header("Bool")]
+    private bool isSprint = false;
 
     private void Awake()
     {
@@ -41,7 +34,7 @@ public class AnimalFSM : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    void Start()
+    private void Start()
     {
         currentState = AnimalState.Idle;
     }
@@ -75,7 +68,8 @@ public class AnimalFSM : MonoBehaviour
     {
         // 휴식 로직 구현
         agent.isStopped = true;
-        animator.SetTrigger("isRest");
+        isSprint = false;
+        StartCoroutine(ChangeCoroutine(AnimalState.Chase, 10f));
     }
     #endregion
 
@@ -90,7 +84,8 @@ public class AnimalFSM : MonoBehaviour
     void Chase()
     {
         //  경계 로직 구현
-
+        animator.SetBool("isChase", true);
+        PlayerSerch();
     }
     #endregion
 
@@ -98,8 +93,13 @@ public class AnimalFSM : MonoBehaviour
     public virtual void Escape()
     {
         agent.speed = 5;
-        isSprint = true;
-        agent.SetDestination(escapeTarget.transform.position);
+
+        // 배열에서 랜덤한 인덱스를 선택
+        int randomIndex = Random.Range(0, patrolTarget.Length);
+
+        // 선택된 인덱스의 위치를 도망 목적지로 설정
+        Transform randomEscapeTarget = patrolTarget[randomIndex];
+        agent.SetDestination(randomEscapeTarget.position);
     }
     #endregion
 
@@ -120,12 +120,12 @@ public class AnimalFSM : MonoBehaviour
     #region 플레이어 감지
     protected void PlayerSerch()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5F);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 20F);
         foreach (Collider collider in colliders)
         {
-            if(collider.tag == "Player")
+            if (collider.tag == "Player")
             {
-
+                ChangeState(AnimalState.Escape);
             }
         }
     }
@@ -136,23 +136,14 @@ public class AnimalFSM : MonoBehaviour
     #endregion
 
     #region 데미지 받다
-    public void TakeDamage(float x)
+    public virtual void TakeDamage(float x)
     {
-        currentHP -= x;
-        Blood();
-        currentHP -= Time.deltaTime;
-        if(currentHP <= 0)
-        {
-            currentHP = 0;
-            ChangeState(AnimalState.Die);
-        }
     }
     #endregion
 
     #region 피 흘리다
-    private void Blood()
+    public virtual void Blood()
     {
-        LeanPool.Spawn(blood , transform);
     }
     #endregion
 

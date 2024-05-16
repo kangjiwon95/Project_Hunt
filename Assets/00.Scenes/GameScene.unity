@@ -16843,7 +16843,7 @@ GameObject:
   - component: {fileID: 7682787895391361974}
   m_Layer: 0
   m_Name: Moss
-  m_TagString: Untagged
+  m_TagString: Animal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17359,6 +17359,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blood: {fileID: 2081691768546386550, guid: a47d14e2e6d41444d9cf1d82bdc303e5, type: 3}
+  patrolTarget: []
+  escapeTarget: {fileID: 0}
+  currentHP: 0
 --- !u!195 &7682787895391361974
 NavMeshAgent:
   m_ObjectHideFlags: 0

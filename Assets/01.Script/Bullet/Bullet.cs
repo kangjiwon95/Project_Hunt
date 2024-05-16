@@ -25,7 +25,7 @@ public class Bullet : MonoBehaviour
         foreach (Collider collider in colliders)
         {
             AnimalFSM animal = collider.GetComponentInParent<AnimalFSM>();
-
+            print(collider.tag);
             if (collider.tag == "Head")
             {
                 Destroy(gameObject);
@@ -39,7 +39,7 @@ public class Bullet : MonoBehaviour
             else if (collider.tag == "Animal")
             { 
                 Destroy(gameObject);
-                animal.TakeDamage(50);
+                animal.TakeDamage(150);
             }
             else if (collider.tag == "Rock")
             {

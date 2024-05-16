@@ -11,6 +11,7 @@ TagManager:
   - Head
   - Dead
   - Heart
+  - Animal
   layers:
   - Default
   - TransparentFX

@@ -29,7 +29,7 @@ public class Sleeve : MonoBehaviour
 
     private IEnumerator DestroySleeve()
     {
-        yield return new WaitForSeconds(15f);
+        yield return new WaitForSeconds(5f);
 
         LeanPool.Despawn(gameObject);
     }
