@@ -20,7 +20,7 @@ public class NPC : MonoBehaviour
             if(collider.tag == "Player")
             {
                 animator.SetBool("isIteraction", true);
-                PlayerCamp playerCamp = collider.GetComponent<PlayerCamp>();
+                PlayerUiManager playerCamp = collider.GetComponent<PlayerUiManager>();
                 playerCamp.Camp();
             }
             else

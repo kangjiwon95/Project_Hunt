@@ -25,7 +25,6 @@ public class Bullet : MonoBehaviour
         foreach (Collider collider in colliders)
         {
             AnimalFSM animal = collider.GetComponentInParent<AnimalFSM>();
-            print(collider.tag);
             if (collider.tag == "Head")
             {
                 Destroy(gameObject);

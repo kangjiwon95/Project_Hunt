@@ -16,16 +16,15 @@ public class CampUI : MonoBehaviour
     [Header("Shop")]
     public Button shop;
 
+    [Header("EscUI")]
+    public GameObject escUI;
+
+
 
     private void Update()
     {
         RestButton();
         ShopButton();
-
-        if(Input.GetButtonDown("Cancel"))
-        {
-            gameObject.SetActive(false);
-        }
     }
 
     #region  ÈÞ½Ä ¹öÆ°

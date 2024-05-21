@@ -9,20 +9,24 @@ public class Moss : AnimalFSM
     [SerializeField]
     protected float currentHP;
     protected float maxHP;
+    protected float currentfatigue;
+    protected float maxfatigue;
 
     private List<GameObject> bloodMarks = new List<GameObject>();
 
     [Header("Bool")]
     private bool isBlooding = false;
-
-    [Header("Die")]
-    public GameObject dead;
+    private bool isMovingToPatrolPoint = false;
 
     private void Start()
     {
-        // 다른 동물들 체력만 변환
+        // 동물의 체력
         maxHP = 400f;
         currentHP = maxHP;
+        // 동물의 피로도
+        maxfatigue = 100f;
+        currentfatigue = maxfatigue;
+
 
         currentState = AnimalState.Idle;
     }
@@ -30,6 +34,10 @@ public class Moss : AnimalFSM
     public override void Awake()
     {
         base.Awake();
+
+        agent.enabled = false;
+        agent.transform.position = GameManager.instance.mossPos.position;
+        agent.enabled = true;
     }
 
     public override void Update()
@@ -48,37 +56,49 @@ public class Moss : AnimalFSM
                 isBlooding = false; // 죽으면 출혈 중단
             }
         }
-
-        if(!dead.activeSelf)
-        {
-            Destroy(gameObject);
-        }
-
     }
 
     #region FSM 구현
     public override void Idle()
     {
-        // 휴식 로직 구현
-        agent.isStopped = true;
+        //휴식 로직 구현
+        RecoveryFatigue();
     }
 
     public override void Patrol()
     {
-        animator.SetBool("isPatrol",true);
+        agent.speed = 5f;
+        if (!isMovingToPatrolPoint)
+        {
+            MoveRandomPoint();
+            isMovingToPatrolPoint = true;
+        }
+
+        Vector3 direction = agent.steeringTarget - transform.position;
+        Vector3 localDirection = transform.InverseTransformDirection(direction);
+
+        animator.SetFloat("xDir", localDirection.x);
+        animator.SetFloat("yDir", localDirection.z);
+
+        if (agent.remainingDistance <= agent.stoppingDistance)
+        {
+            isMovingToPatrolPoint = false;
+            Fatigue(maxfatigue);
+        }
     }
 
     public override void Chase()
     {
         //  경계 로직 구현
-        agent.isStopped = false;
-        animator.SetBool("isChase", true);
+        animator.SetBool("isChase",true);
+        Serch();
     }
 
     public override void Escape()
     {
-        agent.speed = 5;
-        animator.SetBool("isEscape", true);
+        agent.speed = 10;
+        animator.SetBool("isSprint", true);
+        Fatigue(10);
     }
 
     public override void Eat()
@@ -86,6 +106,39 @@ public class Moss : AnimalFSM
         animator.SetTrigger("isEat");
     }
 
+    public override void Die()
+    {
+        agent.isStopped = true;
+        animator.SetTrigger("isDie");
+        gameObject.tag = "Dead";
+        currentHP = 0;
+    }
+    #endregion
+
+    #region 피로도 구현
+    private void Fatigue(float x)
+    {
+        currentfatigue -= x * Time.deltaTime;
+
+        if(currentfatigue <= 0)
+        {
+            currentfatigue = 0;
+            agent.isStopped = true;
+            ChangeState(AnimalState.Idle);
+        }
+    }
+
+    private void RecoveryFatigue()
+    {
+        currentfatigue += 5 * Time.deltaTime;
+
+        if(currentfatigue >= maxfatigue)
+        {
+            currentfatigue = maxfatigue;
+            agent.isStopped = false;
+            ChangeState(AnimalState.Chase);
+        }
+    }
     #endregion
 
     #region 데미지 구현
@@ -93,6 +146,7 @@ public class Moss : AnimalFSM
     {
         currentHP -= x;
         isBlooding = true;
+        ChangeState(AnimalState.Escape);
         Blood();
         if (currentHP <= 0)
         {
@@ -102,6 +156,36 @@ public class Moss : AnimalFSM
         }
     }
 
+    #endregion
+
+    #region 주변 감지
+    public void Serch()
+    {
+        Collider[] two = Physics.OverlapSphere(transform.position, 20F);
+        foreach (Collider collider in two)
+        {
+            if (collider.tag == "Player")
+            {
+                ChangeState(AnimalState.Escape);
+            }
+            else if (collider.tag != "Player")
+            {
+                StartCoroutine(ChangeCoroutine(AnimalState.Patrol,10f));
+            }
+        }
+    }
+    #endregion
+
+    #region 랜덤한 포인트 이동(Patrol)
+    private void MoveRandomPoint()
+    {
+        Transform[] patrolPoints = GameManager.instance.patrolPos;
+        if (patrolPoints.Length == 0) return;
+
+        int randomIndex = Random.Range(0, patrolPoints.Length);
+        Vector3 randomPatrolPoint = patrolPoints[randomIndex].position;
+        agent.SetDestination(randomPatrolPoint);
+    }
     #endregion
 
     #region 핏자국 구현
@@ -120,9 +204,8 @@ public class Moss : AnimalFSM
         }
 
     }
-    #endregion
 
-
+    // 동물의 Destroy 핏자국 삭제
     private void OnDestroy()
     {
         foreach (var mark in bloodMarks)
@@ -130,4 +213,5 @@ public class Moss : AnimalFSM
             Destroy(mark);
         }
     }
+    #endregion
 }

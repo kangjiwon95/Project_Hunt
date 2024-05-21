@@ -1,7 +1,5 @@
 using Lean.Pool;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -119,7 +117,7 @@ public class PlayerRifle : MonoBehaviour
     // 총기 꺼내기
     private void GetWeapon()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && !isWeapons)
+        if (Input.GetKeyDown(KeyCode.Alpha1) && !isWeapons && !Input.GetKey(KeyCode.LeftShift))
         {
             isWeapons = true;
             animator.SetBool("isGetWeapon", isWeapons);
@@ -137,7 +135,7 @@ public class PlayerRifle : MonoBehaviour
             animator.SetTrigger("Reload");
             currentBullet = maxBullet;
             magazine--;
-            if(magazine <= 0)
+            if (magazine <= 0)
             {
                 magazine = 0;
                 magazineText.color = Color.red;
@@ -214,7 +212,7 @@ public class PlayerRifle : MonoBehaviour
             mainCam.transform.position = sightCamPos.position;
         }
         // 시야 전환 중이고 마우스 우클릭이 해제되었을 때
-        else if(Input.GetKeyUp(KeyCode.Mouse1))
+        else if (Input.GetKeyUp(KeyCode.Mouse1))
         {
             SightOff();
         }
@@ -259,10 +257,8 @@ public class PlayerRifle : MonoBehaviour
     // 숨을 회복
     public void BreathRecovery(float x)
     {
-        if (!Input.GetKey(KeyCode.LeftShift))
-        {
-            currentBreath += x + Time.deltaTime;
-        }
+        currentBreath += x + Time.deltaTime;
+
         if (currentBreath >= MaxBreath)
         {
             currentBreath = MaxBreath;
@@ -270,7 +266,7 @@ public class PlayerRifle : MonoBehaviour
     }
 
     // 숨을 참을 때 sight 상태에서 폐 이미지 색 변경
-    private void ColorBreathHold() 
+    private void ColorBreathHold()
     {
         if (currentBreath >= 80)
         {

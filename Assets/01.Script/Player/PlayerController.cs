@@ -179,14 +179,26 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        print(other.tag);
         if(other.tag == "Dead")
         {
-            if (Input.GetKeyDown(KeyCode.K))
+            print(other.tag);
+            if (Input.GetKeyDown(KeyCode.F))
             {
-                // 인벤토리에 아이템 적립 추가
-                other.gameObject.SetActive(false);
+                Destroy(other.gameObject);
+                AnimalSpawn(other);
             }
+        }
+    }
+
+    private void AnimalSpawn(Collider collider)
+    {
+        if(collider.name == "Moss")
+        {
+            GameManager.instance.SpawnAnimal(GameManager.instance.moss, GameManager.instance.mossPos);
+        }
+        else if(collider.name == "Bear")
+        {
+            GameManager.instance.SpawnAnimal(GameManager.instance.bear, GameManager.instance.bearPos);
         }
     }
 }

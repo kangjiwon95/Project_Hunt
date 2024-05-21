@@ -17,9 +17,8 @@ public class AnimalFSM : MonoBehaviour
     protected Animator animator;
     protected NavMeshAgent agent;
 
-    [Header("Blood & DIe")]
+    [Header("Blood")]
     public GameObject blood;
-    public GameObject spain;
 
     public virtual void Awake()
     {
@@ -82,29 +81,8 @@ public class AnimalFSM : MonoBehaviour
     #endregion
 
     #region 죽음 상태
-    public void Die()
+    public virtual void Die()
     {
-        print("죽음");
-        animator.SetTrigger("isDie");
-        spain.tag = "Dead";
-    }
-    #endregion
-
-    #region 플레이어 감지
-    public void PlayerSerch()
-    {
-        Collider[] two = Physics.OverlapSphere(transform.position, 20F);
-        foreach (Collider collider in two)
-        {
-            if(collider.tag == "Player")
-            {
-                
-            }
-            else if(collider.tag != "Player")
-            {
-                
-            }
-        }
     }
     #endregion
 
