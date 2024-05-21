@@ -29,17 +29,22 @@ public class Bullet : MonoBehaviour
             if (collider.tag == "Head")
             {
                 Destroy(gameObject);
-                animal.ChangeState(AnimalState.Die);
+                animal.Die();
             }
             else if (collider.tag == "Heart")
             {
                 Destroy(gameObject);
-                animal.ChangeState(AnimalState.Die);
+                animal.Die();
+            }
+            else if(collider.tag == "Spain")
+            {
+                Destroy(gameObject);
+                animal.TakeDamage(150);
             }
             else if (collider.tag == "Animal")
             { 
                 Destroy(gameObject);
-                animal.TakeDamage(150);
+                animal.TakeDamage(200);
             }
             else if (collider.tag == "Rock")
             {

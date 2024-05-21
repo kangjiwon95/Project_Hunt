@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     CharacterController characterController;
     Animator animator;
     PlayerSound playerSound;
+    PlayerRifle playerRifle;
 
     [Space(20)]
     [Header("Speed")]
@@ -15,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float baseSpeed = 5f;
     [SerializeField]
-    float runingSpeed = 10f;
+    float runingSpeed = 20f;
 
     [Space(20)]
     [Header("MouseMove")]
@@ -46,6 +47,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         playerSound = GetComponent<PlayerSound>();
+        playerRifle = GetComponent<PlayerRifle>();
     }
 
     private void Start()
@@ -71,16 +73,18 @@ public class PlayerController : MonoBehaviour
     #region 달리기
     private void Sprint()
     {
-        if (Input.GetKey(KeyCode.LeftShift) && currentFatigue > 0)
+        if (Input.GetKey(KeyCode.LeftShift) && playerRifle.currentBreath > 0 && currentFatigue > 0)
         {
             isRuning = true;
             playerSound.Sound(6);
             Fatigue(5);
+            playerRifle.BreathHold(3);
         }
         else
         {
             isRuning = false;
             playerSound.Sound(2);
+            playerRifle.BreathRecovery(5);
         }
         animator.SetBool("isSprint", isRuning);
     }
@@ -172,4 +176,17 @@ public class PlayerController : MonoBehaviour
         fatigueGauge.fillAmount = currentFatigue / maxFatigue;
     }
     #endregion
+
+    private void OnTriggerStay(Collider other)
+    {
+        print(other.tag);
+        if(other.tag == "Dead")
+        {
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                // 인벤토리에 아이템 적립 추가
+                other.gameObject.SetActive(false);
+            }
+        }
+    }
 }

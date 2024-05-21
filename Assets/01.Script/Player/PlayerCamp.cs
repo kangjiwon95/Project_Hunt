@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerCamp : MonoBehaviour
 {
     public GameObject campUI;
+
     public void Camp()
     {
         if (Input.GetKeyDown(KeyCode.F))
@@ -16,4 +17,5 @@ public class PlayerCamp : MonoBehaviour
             Cursor.visible = true;
         }
     }
+
 }

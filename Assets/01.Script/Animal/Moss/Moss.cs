@@ -15,42 +15,96 @@ public class Moss : AnimalFSM
     [Header("Bool")]
     private bool isBlooding = false;
 
+    [Header("Die")]
+    public GameObject dead;
+
     private void Start()
     {
         // 다른 동물들 체력만 변환
         maxHP = 400f;
         currentHP = maxHP;
+
+        currentState = AnimalState.Idle;
     }
 
-    private void Update()
+    public override void Awake()
     {
+        base.Awake();
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
         if (isBlooding)
         {
             currentHP -= Time.deltaTime * 0.5f;
 
+            StartCoroutine(Blooding());
             if (currentHP <= 0)
             {
                 currentHP = 0;
-                ChangeState(AnimalState.Die);
+                Die();
                 isBlooding = false; // 죽으면 출혈 중단
             }
         }
+
+        if(!dead.activeSelf)
+        {
+            Destroy(gameObject);
+        }
+
     }
 
+    #region FSM 구현
+    public override void Idle()
+    {
+        // 휴식 로직 구현
+        agent.isStopped = true;
+    }
+
+    public override void Patrol()
+    {
+        animator.SetBool("isPatrol",true);
+    }
+
+    public override void Chase()
+    {
+        //  경계 로직 구현
+        agent.isStopped = false;
+        animator.SetBool("isChase", true);
+    }
+
+    public override void Escape()
+    {
+        agent.speed = 5;
+        animator.SetBool("isEscape", true);
+    }
+
+    public override void Eat()
+    {
+        animator.SetTrigger("isEat");
+    }
+
+    #endregion
+
+    #region 데미지 구현
     public override void TakeDamage(float x)
     {
         currentHP -= x;
         isBlooding = true;
-        StartCoroutine(Blooding());
-        ChangeState(AnimalState.Escape);
+        Blood();
         if (currentHP <= 0)
         {
             currentHP = 0;
             isBlooding = false;
-            ChangeState(AnimalState.Die);
+            Die();
         }
     }
 
+    #endregion
+
+    #region 핏자국 구현
     public override void Blood()
     {
         GameObject newBlood = LeanPool.Spawn(blood, transform);
@@ -66,12 +120,14 @@ public class Moss : AnimalFSM
         }
 
     }
+    #endregion
+
 
     private void OnDestroy()
     {
         foreach (var mark in bloodMarks)
         {
-            LeanPool.Despawn(mark);
+            Destroy(mark);
         }
     }
 }

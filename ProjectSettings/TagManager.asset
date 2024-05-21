@@ -12,6 +12,7 @@ TagManager:
   - Dead
   - Heart
   - Animal
+  - Spain
   layers:
   - Default
   - TransparentFX

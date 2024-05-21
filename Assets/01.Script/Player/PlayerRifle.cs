@@ -38,8 +38,8 @@ public class PlayerRifle : MonoBehaviour
     [Header("Zoom")]
     public Image Breath;
     [SerializeField]
-    private float currentBreath = 0f;
-    private float MaxBreath = 10;
+    public float currentBreath = 0f;
+    protected float MaxBreath = 100;
     [SerializeField]
     private float zoomSpeed = 20;
 
@@ -71,7 +71,7 @@ public class PlayerRifle : MonoBehaviour
     {
         rifleObj.SetActive(false);
 
-        MaxBreath = 10f;
+        MaxBreath = 100f;
         currentBreath = MaxBreath;
 
         maxBullet = 6f;
@@ -103,12 +103,12 @@ public class PlayerRifle : MonoBehaviour
             Zoom();
             Shoot();
             playerController.SightMouseMove();
-            BreathHold();
+            BreathHold(1);
         }
         else
         {
             playerController.MouseMove();
-            BreathRecovery();
+            BreathRecovery(3);
         }
         #endregion
         ColorBreathHold();
@@ -245,9 +245,9 @@ public class PlayerRifle : MonoBehaviour
     }
 
     // 숨 참기
-    private void BreathHold()
+    public void BreathHold(float x)
     {
-        currentBreath -= Time.deltaTime;
+        currentBreath -= x * Time.deltaTime;
 
         if (currentBreath <= 0)
         {
@@ -257,13 +257,13 @@ public class PlayerRifle : MonoBehaviour
     }
 
     // 숨을 회복
-    private void BreathRecovery()
+    public void BreathRecovery(float x)
     {
         if (!Input.GetKey(KeyCode.LeftShift))
         {
-            currentBreath += Time.deltaTime;
+            currentBreath += x + Time.deltaTime;
         }
-        if (currentBreath >= 5)
+        if (currentBreath >= MaxBreath)
         {
             currentBreath = MaxBreath;
         }
@@ -272,17 +272,17 @@ public class PlayerRifle : MonoBehaviour
     // 숨을 참을 때 sight 상태에서 폐 이미지 색 변경
     private void ColorBreathHold() 
     {
-        if (currentBreath >= 8)
+        if (currentBreath >= 80)
         {
             Breath.color = Color.green;
         }
 
-        if (currentBreath <= 5)
+        if (currentBreath <= 50)
         {
             Breath.color = Color.yellow;
         }
 
-        if (currentBreath <= 0)
+        if (currentBreath <= 10)
         {
             Breath.color = Color.red;
         }
