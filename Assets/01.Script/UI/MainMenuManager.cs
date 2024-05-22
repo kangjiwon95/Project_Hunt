@@ -24,6 +24,11 @@ public class MainMenuManager : MonoBehaviour
     public GameObject optionPanel;
     public GameObject gameQuitPanel;
 
+    [Space(20)]
+    [Header("NewGame, LoadGame")]
+    public Button slot1;
+    public Text slotText;
+
 
     private void Start()
     {

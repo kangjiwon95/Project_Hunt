@@ -136,7 +136,8 @@ public class PlayerController : MonoBehaviour
 
         // 카메라의 상하 회전
         yRotation -= mouseY;
-        yRotation = Mathf.Clamp(yRotation, -5f, 3f); // 상하 회전 각도 제한 (-40 , 20)
+        // 상하 회전 각도 제한 (-5f, 3f)
+        yRotation = Mathf.Clamp(yRotation, -5f, 3f);
         mainCam.transform.localRotation = Quaternion.Euler(yRotation, 0f, 0f);
         // 플레이어의 좌우 회전
         transform.rotation *= Quaternion.Euler(0f, mouseX, 0f);

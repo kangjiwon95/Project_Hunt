@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -45,5 +46,15 @@ public class GameManager : MonoBehaviour
     public void SpawnAnimal(GameObject animal, Transform pos)
     {
         LeanPool.Spawn(animal, pos);
+    }
+
+    public void NewGame(int slot)
+    {
+        // 예제에서는 플레이어의 위치를 저장하는 것으로 가정합니다.
+        Vector3 playerStartPosition = new Vector3(0, 0, 0); // 초기 위치
+        DataManager.instance.SaveGame(slot, playerStartPosition);
+
+        // 새로운 게임 씬 로드
+        SceneManager.LoadScene("GameScene");
     }
 }

@@ -48,5 +48,7 @@ public class PlayerUiManager : MonoBehaviour
     private void ExitButton()
     {
         exitButton.onClick.AddListener(() => escUI.SetActive(false));
+        exitButton.onClick.AddListener(() => Cursor.lockState = CursorLockMode.Locked);
+        exitButton.onClick.AddListener(() => Cursor.visible = false);
     }
 }

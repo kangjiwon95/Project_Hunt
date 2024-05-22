@@ -44,8 +44,9 @@ public class LoadingSceneManager : MonoBehaviour
             // 로딩 완료 시점에서 씬 활성화
             if (asyncLoad.progress >= 0.9f)
             {
-                tipText.text = "아무키나 눌러주세요!";
                 // 사용자가 준비되었을 때 씬 활성화하기 위해 특정 입력을 기다림
+                tipText.text = "아무키나 눌러주세요!";
+
                 if (Input.anyKeyDown)
                 {
                     asyncLoad.allowSceneActivation = true;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerUI : MonoBehaviour
@@ -15,11 +16,15 @@ public class PlayerUI : MonoBehaviour
     [Header("Game Quit")]
     public Button gameQuitButton;
     public GameObject gameQuit;
+    public Button yesButton;
+    public Button noButton;
 
     private void Update()
     {
         KeyExpineButton();
         GameQuitButton();
+        YesButton();
+        NoButton();
 
         if (Input.GetButtonDown("Cancel"))
         {
@@ -46,9 +51,23 @@ public class PlayerUI : MonoBehaviour
         keyExpineButton.onClick.AddListener(() => uiManager.exitButton.gameObject.SetActive(false));
     }
 
+    #region 게임 종료 버튼
     private void GameQuitButton()
     {
         gameQuitButton.onClick.AddListener( () => gameQuit.SetActive(true));
         gameQuitButton.onClick.AddListener(() => uiManager.exitButton.gameObject.SetActive(false));
     }
+
+    private void YesButton()
+    {
+        yesButton.onClick.AddListener(() => DataManager.instance.SaveGame(1,GameManager.instance.playerPos.position));
+        yesButton.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
+    }
+
+    private void NoButton()
+    {
+        noButton.onClick.AddListener(() => gameQuit.SetActive(false));
+    }
+
+    #endregion
 }

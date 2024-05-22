@@ -7,7 +7,7 @@ public enum AnimalState
     Idle,
     Patrol,
     Chase,
-    Escape,
+    Run,
     Eat,
 }
 
@@ -39,8 +39,8 @@ public class AnimalFSM : MonoBehaviour
             case AnimalState.Chase:
                 Chase();
                 break;
-            case AnimalState.Escape:
-                Escape();
+            case AnimalState.Run:
+                Run();
                 break;
             case AnimalState.Eat:
                 Eat();
@@ -68,7 +68,7 @@ public class AnimalFSM : MonoBehaviour
     #endregion
 
     #region 도망 상태
-    public virtual void Escape()
+    public virtual void Run()
     {
     }
     #endregion
@@ -86,9 +86,6 @@ public class AnimalFSM : MonoBehaviour
     }
     #endregion
 
-    #region 소리 감지
-
-    #endregion
 
     #region 데미지 받다
     public virtual void TakeDamage(float x)

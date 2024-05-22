@@ -94,11 +94,22 @@ public class Moss : AnimalFSM
         Serch();
     }
 
-    public override void Escape()
+    public override void Run()
     {
         agent.speed = 10;
         animator.SetBool("isSprint", true);
-        Fatigue(10);
+        if (!isMovingToPatrolPoint)
+        {
+            MoveRandomPoint();
+            isMovingToPatrolPoint = true;
+        }
+
+        if (agent.remainingDistance <= agent.stoppingDistance)
+        {
+            isMovingToPatrolPoint = false;
+            animator.SetBool("isSprint", false);
+            Fatigue(maxfatigue);
+        }
     }
 
     public override void Eat()
@@ -146,7 +157,7 @@ public class Moss : AnimalFSM
     {
         currentHP -= x;
         isBlooding = true;
-        ChangeState(AnimalState.Escape);
+        ChangeState(AnimalState.Run);
         Blood();
         if (currentHP <= 0)
         {
@@ -166,7 +177,7 @@ public class Moss : AnimalFSM
         {
             if (collider.tag == "Player")
             {
-                ChangeState(AnimalState.Escape);
+                ChangeState(AnimalState.Run);
             }
             else if (collider.tag != "Player")
             {

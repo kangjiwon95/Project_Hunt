@@ -8,8 +8,9 @@ public class Bear : AnimalFSM
     [SerializeField]
     protected float currentHP;
     protected float maxHP;
-    protected float currentfatigue;
-    protected float maxfatigue;
+
+    private float currentHungry;
+    private float maxHungry;
 
     private List<GameObject> bloodMarks = new List<GameObject>();
 
@@ -21,9 +22,10 @@ public class Bear : AnimalFSM
         // 다른 동물들 체력만 변환
         maxHP = 400f;
         currentHP = maxHP;
-        // 동물의 피로도
-        maxfatigue = 100f;
-        currentfatigue = maxfatigue;
+
+        // 육식 동물의 배고픔
+        maxHungry = 100f;
+        currentHungry = maxHungry;
 
         currentState = AnimalState.Idle;
     }
@@ -59,24 +61,22 @@ public class Bear : AnimalFSM
     public override void Idle()
     {
         // 휴식 로직 구현
-        RecoveryFatigue();
-    }
-
-    public override void Patrol()
-    {
-        Fatigue(3f);
+        animator.SetBool("isRest", true);
+        agent.isStopped = true;
+        UseHungryValue();
     }
 
     public override void Chase()
     {
         //  경계 로직 구현
-        Fatigue(2);
+        animator.SetBool("isChase", true);
+        Serch();
     }
 
-    public override void Escape()
+    public override void Run()
     {
-        agent.speed = 10;
-        Fatigue(5);
+        animator.SetBool("isSprint",true);
+        Attack();
     }
 
     public override void Eat()
@@ -89,9 +89,36 @@ public class Bear : AnimalFSM
         animator.SetTrigger("isDie");
         gameObject.tag = "Dead";
         currentHP = 0;
-        agent.enabled = false;
+        agent.isStopped = false;
     }
 
+    #endregion
+
+    #region 육식 동물 공격 구현
+    private void Attack()
+    {
+        Collider[] two = Physics.OverlapSphere(transform.position,12F);
+        foreach (Collider collider in two)
+        {
+            Moss moss = collider.GetComponent<Moss>();
+
+            if (collider.tag == "Player")
+            {
+                animator.SetTrigger("isAttack");
+            }
+            else if (collider.name == "Moss")
+            {
+                animator.SetTrigger("isAttack");
+                moss.TakeDamage(100f);
+            }
+            else if(collider.tag == "Dead")
+            {
+                animator.SetTrigger("isEat");
+                Destroy(collider.gameObject);
+                GameManager.instance.SpawnAnimal(GameManager.instance.moss, GameManager.instance.mossPos);
+            }
+        }
+    }
     #endregion
 
     #region 데미지 구현
@@ -108,30 +135,37 @@ public class Bear : AnimalFSM
             Die();
         }
     }
-
     #endregion
 
-    #region 피로도 구현
-    private void Fatigue(float x)
+    #region 배고픔
+    private void UseHungryValue()
     {
-        currentfatigue -= x * Time.deltaTime;
+        currentHungry -= 5f * Time.deltaTime;
 
-        if (currentfatigue <= 0)
+        if(currentHungry <= 0)
         {
-            currentfatigue = 0;
-            animator.SetBool("isIdle", true);
-            ChangeState(AnimalState.Idle);
+            ChangeState(AnimalState.Chase);
         }
     }
 
-    private void RecoveryFatigue()
-    {
-        currentfatigue += 5 * Time.deltaTime;
+    #endregion
 
-        if (currentfatigue >= maxfatigue)
+    #region 주변 사냥감 감지
+    public void Serch()
+    {
+        Collider[] two = Physics.OverlapSphere(transform.position, 100F);
+        foreach (Collider collider in two)
         {
-            currentfatigue = maxfatigue;
-            ChangeState(AnimalState.Chase);
+            if (collider.tag == "Player")
+            {
+                ChangeState(AnimalState.Run);
+                agent.SetDestination(GameManager.instance.playerPos.position);
+            }
+            else if (collider.name == "Moss")
+            {
+                ChangeState(AnimalState.Run);
+                agent.SetDestination(GameManager.instance.mossPos.position);
+            }
         }
     }
     #endregion
