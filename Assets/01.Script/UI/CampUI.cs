@@ -15,14 +15,16 @@ public class CampUI : MonoBehaviour
 
     [Header("Shop")]
     public Button shop;
+    public GameObject shopPanel;
+    public Button buyButton;
 
-    [Header("EscUI")]
-    public GameObject escUI;
+    [Header("Player")]
+    public PlayerRifle playerRifle;
+    public PlayerUI playerUI;
 
-
-
-    private void Update()
+    private void Start()
     {
+        BuyButton();
         RestButton();
         ShopButton();
     }
@@ -82,7 +84,27 @@ public class CampUI : MonoBehaviour
 
     private void Shop()
     {
+        shopPanel.SetActive(true);
+    }
 
+    private void BuyMagazine()
+    {
+        if (playerUI.currentGold > 499f)
+        {
+            // 탄창 구매
+            playerRifle.magazine = playerRifle.magazine + 1;
+            playerRifle.magazineText.text = playerRifle.magazine.ToString();
+            playerUI.currentGold -= 500f;
+        }
+        else
+        {
+            print("구매 불가");
+        }
+    }
+
+    private void BuyButton()
+    {
+        buyButton.onClick.AddListener(() => BuyMagazine());
     }
     #endregion
 }

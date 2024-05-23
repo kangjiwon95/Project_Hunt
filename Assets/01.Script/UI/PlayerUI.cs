@@ -19,6 +19,20 @@ public class PlayerUI : MonoBehaviour
     public Button yesButton;
     public Button noButton;
 
+    [Header("Inventory")]
+    public GameObject inventory;
+    public Text goldText;
+    [SerializeField]
+    public float currentGold;
+    protected float maxGold;
+
+    private void Start()
+    {
+        maxGold = 99999;
+        currentGold = 10000f;
+        goldText.text = currentGold.ToString();
+    }
+
     private void Update()
     {
         KeyExpineButton();
@@ -38,10 +52,11 @@ public class PlayerUI : MonoBehaviour
                 gameQuit.SetActive(false);
                 uiManager.exitButton.gameObject.SetActive(true);
             }
-            else if(uiManager.campUI.activeSelf)
-            {
-                uiManager.campUI.SetActive(false);
-            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.I))
+        {
+            InventoryOpen();
         }
     }
 
@@ -67,6 +82,19 @@ public class PlayerUI : MonoBehaviour
     private void NoButton()
     {
         noButton.onClick.AddListener(() => gameQuit.SetActive(false));
+    }
+
+    #endregion
+
+    #region 인벤토리
+    private void InventoryOpen()
+    {
+        inventory.SetActive(true);
+        goldText.text = currentGold.ToString();
+        // 마우스 커서를 화면 안에 고정 해체
+        Cursor.lockState = CursorLockMode.None;
+        // 마우스 커서 보임
+        Cursor.visible = true;
     }
 
     #endregion

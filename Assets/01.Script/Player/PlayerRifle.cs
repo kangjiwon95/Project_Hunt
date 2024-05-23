@@ -1,4 +1,5 @@
 using Lean.Pool;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -48,7 +49,7 @@ public class PlayerRifle : MonoBehaviour
     public Text magazineText;
     private float maxBullet;
     private float currentBullet;
-    private float magazine;
+    public float magazine;
     private bool isFire = false;
 
     [Space(20)]
@@ -74,7 +75,7 @@ public class PlayerRifle : MonoBehaviour
 
         maxBullet = 6f;
         currentBullet = maxBullet;
-        magazine = 99f;
+        magazine = 1f;
         bulletText.text = currentBullet.ToString();
         maxBulletText.text = maxBullet.ToString();
         magazineText.text = magazine.ToString();
@@ -130,7 +131,7 @@ public class PlayerRifle : MonoBehaviour
     //√—±‚ ¿Â¿¸
     private void Reload()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (currentBullet < 1 && magazine > 0 && Input.GetKeyDown(KeyCode.R))
         {
             animator.SetTrigger("Reload");
             currentBullet = maxBullet;

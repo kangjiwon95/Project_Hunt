@@ -89,7 +89,7 @@ public class Bear : AnimalFSM
         animator.SetTrigger("isDie");
         gameObject.tag = "Dead";
         currentHP = 0;
-        agent.isStopped = false;
+        agent.isStopped = true;
     }
 
     #endregion

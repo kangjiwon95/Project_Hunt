@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
             isRuning = true;
             playerSound.Sound(6);
             Fatigue(5);
-            playerRifle.BreathHold(3);
+            playerRifle.BreathHold(8);
         }
         else
         {
