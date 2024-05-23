@@ -11,7 +11,6 @@ public class GameData
     public float playerPositionX;
     public float playerPositionY;
     public float playerPositionZ;
-    // 필요한 다른 데이터 필드 추가
 }
 
 public class DataManager : MonoBehaviour

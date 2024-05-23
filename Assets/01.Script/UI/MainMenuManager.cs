@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Data;
+using System;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -18,6 +20,7 @@ public class MainMenuManager : MonoBehaviour
     public Button gamequitButton;
     public Button yesButton;
     public Button noButton;
+    public Button exitButton;
 
     [Space(20)]
     [Header("Panel")]
@@ -26,18 +29,24 @@ public class MainMenuManager : MonoBehaviour
 
     [Space(20)]
     [Header("NewGame, LoadGame")]
-    public Button slot1;
+    public Button slot;
     public Text slotText;
+    public GameObject newGamePanel;
+
+
 
 
     private void Start()
     {
         RandomBackImage();
+        exitButton.onClick.AddListener(() => newGamePanel.SetActive(false));
+        newGameButton.onClick.AddListener(() => newGamePanel.SetActive(true));
+        slot.onClick.AddListener(() => NewGameButton(1));
+        slotText.text = DateTime.Now.ToString("HHmmss");
     }
 
     private void Update()
     {
-        NewGameButton();
         OptionButton();
         GameQuitPanel();
     }
@@ -50,7 +59,7 @@ public class MainMenuManager : MonoBehaviour
         if (backimages.Length > 0)
         {
             // 랜덤으로 인덱스 선택
-            int randomIndex = Random.Range(0, backimages.Length);
+            int randomIndex = UnityEngine.Random.Range(0, backimages.Length);
             // 선택한 이미지를 backGround의 sprite로 설정
             backGround.sprite = backimages[randomIndex];
         }
@@ -66,12 +75,13 @@ public class MainMenuManager : MonoBehaviour
 
     #region New Game Button
 
-    private void NewGameButton()
+    private void NewGameButton(int slot)
     {
         //ToDo: 추가 작업
-        // 데이터 저장 불러오기 제작
-        // 슬롯에 데이터 저장
-        newGameButton.onClick.AddListener(() => SceneManager.LoadScene("LoadingScene"));
+        // 예제에서는 플레이어의 위치를 저장하는 것으로 가정합니다.
+        Vector3 playerStartPosition = new Vector3(0, 0, 130); // 초기 위치
+        DataManager.instance.SaveGame(slot, playerStartPosition);
+        SceneManager.LoadScene("LoadingScene");
     }
 
     #endregion
