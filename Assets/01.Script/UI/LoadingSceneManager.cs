@@ -20,10 +20,6 @@ public class LoadingSceneManager : MonoBehaviour
         "육식동물의 먹이는 당신일수도 있습니다."
     };
 
-        // 팁 배열에서 랜덤하게 하나의 팁을 선택하여 표시
-        int randomIndex = Random.Range(0, tip.Length);
-        tipText.text = tip[randomIndex]; // 선택된 팁을 Text 컴포넌트에 설정
-
         StartCoroutine(LoadSceneAsync());
     }
 
@@ -34,6 +30,9 @@ public class LoadingSceneManager : MonoBehaviour
 
         // 로딩이 끝날 때까지 대기하지 않음
         asyncLoad.allowSceneActivation = false;
+        // 팁 배열에서 랜덤하게 하나의 팁을 선택하여 표시
+        int randomIndex = Random.Range(0, tip.Length);
+        tipText.text = tip[randomIndex]; // 선택된 팁을 Text 컴포넌트에 설정
 
         // 로딩 진행 상황에 따라 UI 업데이트
         while (!asyncLoad.isDone)

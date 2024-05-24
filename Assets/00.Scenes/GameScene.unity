@@ -2196,6 +2196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiManager: {fileID: 6779723281691801253}
+  gameManager: {fileID: 0}
   keyExpineButton: {fileID: 992999597}
   keyExpine: {fileID: 1266290395}
   gameQuitButton: {fileID: 572968707}
@@ -10182,6 +10183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 977cfa839a127614ca5ee29144a925ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dataManager: {fileID: 1855417870}
   moss: {fileID: 2139803773585960872, guid: f23a6adb53dcdae488dd0017d9dc9bc9, type: 3}
   bear: {fileID: 4893037005400036432, guid: 629378ac66bc8a74181ae2cbf7a070c5, type: 3}
   mossPos: {fileID: 326243677}

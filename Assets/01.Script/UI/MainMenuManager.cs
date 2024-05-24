@@ -32,6 +32,8 @@ public class MainMenuManager : MonoBehaviour
     public Button slot;
     public Text slotText;
     public GameObject newGamePanel;
+    public DataManager dataManager;
+    public GameManager gameManager;
 
 
 
@@ -39,10 +41,15 @@ public class MainMenuManager : MonoBehaviour
     private void Start()
     {
         RandomBackImage();
+        // newGaemPanel의 x 버튼
         exitButton.onClick.AddListener(() => newGamePanel.SetActive(false));
+        // newGaemPanel의 버튼
         newGameButton.onClick.AddListener(() => newGamePanel.SetActive(true));
         slot.onClick.AddListener(() => NewGameButton(1));
         slotText.text = DateTime.Now.ToString("HHmmss");
+
+        // LoadGameButton
+        continueButton.onClick.AddListener(() => LoadGameButton());
     }
 
     private void Update()
@@ -74,14 +81,21 @@ public class MainMenuManager : MonoBehaviour
     // Button.OnClick.AddListener(() => );
 
     #region New Game Button
-
     private void NewGameButton(int slot)
     {
         //ToDo: 추가 작업
         // 예제에서는 플레이어의 위치를 저장하는 것으로 가정합니다.
         Vector3 playerStartPosition = new Vector3(0, 0, 130); // 초기 위치
-        DataManager.instance.SaveGame(slot, playerStartPosition);
+        GameManager.instance.NewGame(slot);
         SceneManager.LoadScene("LoadingScene");
+    }
+
+    #endregion
+
+    #region LoadGameButton
+    private void LoadGameButton()
+    {
+        DataManager.instance.LoadGame(1);
     }
 
     #endregion

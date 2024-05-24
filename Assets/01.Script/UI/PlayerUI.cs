@@ -8,6 +8,7 @@ public class PlayerUI : MonoBehaviour
 {
     [Header("playerUI")]
     public PlayerUiManager uiManager;
+    public GameManager gameManager;
 
     [Header("Key Expine")]
     public Button keyExpineButton;
@@ -25,6 +26,11 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     public float currentGold;
     protected float maxGold;
+
+    private void Awake()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+    }
 
     private void Start()
     {

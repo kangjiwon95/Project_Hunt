@@ -72,6 +72,7 @@ public class PlayerRifle : MonoBehaviour
 
         MaxBreath = 100f;
         currentBreath = MaxBreath;
+        ColorBreathHold();
 
         maxBullet = 6f;
         currentBullet = maxBullet;
@@ -110,7 +111,6 @@ public class PlayerRifle : MonoBehaviour
             BreathRecovery(3);
         }
         #endregion
-        ColorBreathHold();
     }
 
     #region  총기 꺼내기, 장전 및 총기,탄약 확인
@@ -247,7 +247,7 @@ public class PlayerRifle : MonoBehaviour
     public void BreathHold(float x)
     {
         currentBreath -= x * Time.deltaTime;
-
+        ColorBreathHold();
         if (currentBreath <= 0)
         {
             currentBreath = 0f;
@@ -259,7 +259,7 @@ public class PlayerRifle : MonoBehaviour
     public void BreathRecovery(float x)
     {
         currentBreath += x + Time.deltaTime;
-
+        ColorBreathHold();
         if (currentBreath >= MaxBreath)
         {
             currentBreath = MaxBreath;
@@ -267,7 +267,7 @@ public class PlayerRifle : MonoBehaviour
     }
 
     // 숨을 참을 때 sight 상태에서 폐 이미지 색 변경
-    private void ColorBreathHold()
+    public void ColorBreathHold()
     {
         if (currentBreath >= 80)
         {

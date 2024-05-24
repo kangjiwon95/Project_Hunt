@@ -78,13 +78,15 @@ public class PlayerController : MonoBehaviour
             isRuning = true;
             playerSound.Sound(6);
             Fatigue(5);
-            playerRifle.BreathHold(8);
+            playerRifle.BreathHold(10);
+            playerRifle.ColorBreathHold();
         }
         else
         {
             isRuning = false;
             playerSound.Sound(2);
             playerRifle.BreathRecovery(5);
+            playerRifle.ColorBreathHold();
         }
         animator.SetBool("isSprint", isRuning);
     }
